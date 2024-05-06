@@ -13,7 +13,9 @@ const ExpenseSchema = require("./models/ExpenseModel");
 let url = "mongodb+srv://saipavanbommuluri:ryJ0D2YffGBstTt0@cluster0.y5hdxqr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 const bcrypt = require("bcrypt");
-const port = 3002;
+//const port = 3002;
+const port = 3002; // Use the port specified by the environment variable or default to 3002
+const host = process.env.HOST || '0.0.0.0';
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -227,6 +229,6 @@ app.post("/refresh-token/:userId",async(req,res)=>{
   res.json({token:newtoken})
 })
 
-app.listen(port, () => {
-  console.log(`API served at http://localhost:${port}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on port ${PORT}`);
 });
