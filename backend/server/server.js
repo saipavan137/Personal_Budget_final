@@ -14,7 +14,7 @@ let url = "mongodb+srv://saipavanbommuluri:ryJ0D2YffGBstTt0@cluster0.y5hdxqr.mon
 
 const bcrypt = require("bcrypt");
 //const port = 3002;
-const port = 3002; // Use the port specified by the environment variable or default to 3002
+const port = 3000; // Use the port specified by the environment variable or default to 3002
 const host = process.env.HOST || '0.0.0.0';
 
 app.use(cors());
