@@ -1,21 +1,22 @@
 const express = require("express");
 const app = express();
-const path = require('path');  // Import 'path' module
+const path = require("path"); // Import 'path' module
 const cors = require("cors");
-const compression = require('compression');
-const jwt=require('jsonwebtoken')
+const compression = require("compression");
+const jwt = require("jsonwebtoken");
 // const { expressjwt: exjwt } = require('express-jwt');
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const SignupSchema = require("./models/SignupModel");
 const BudgetSchema = require("./models/BudgetModel");
 const ExpenseSchema = require("./models/ExpenseModel");
-let url = "mongodb+srv://saipavanbommuluri:ryJ0D2YffGBstTt0@cluster0.y5hdxqr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+let url =
+  "mongodb+srv://saipavanbommuluri:ryJ0D2YffGBstTt0@cluster0.y5hdxqr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 const bcrypt = require("bcrypt");
 //const port = 3002;
 const port = 3000; // Use the port specified by the environment variable or default to 3002
-const host = process.env.HOST || '0.0.0.0';
+const host = process.env.HOST || "0.0.0.0";
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -23,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(compression());
 
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
-const secretkey='This is my key'
+const secretkey = "This is my key";
 
 // const jwtMW = exjwt({
 //   secret: secretkey,
@@ -37,13 +38,11 @@ async function encryptPassword(password) {
   return hashedPassword;
 }
 
-
-
-app.use(express.static(path.join(__dirname, '../frontend/pb.json')));
+app.use(express.static(path.join(__dirname, "../frontend/pb.json")));
 
 // Route for the login page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/public/index.html"));
 });
 
 app.get("/intro", (req, res) => {
@@ -65,56 +64,54 @@ app.get("/get-categories/:userId", async (req, res) => {
       query.months = month;
     }
 
-    const categories = await BudgetSchema.distinct('category', query);
+    const categories = await BudgetSchema.distinct("category", query);
     res.json(categories);
   } catch (error) {
-    console.error('Error fetching categories:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error fetching categories:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-app.get('/get-budgets/:userId', async (req, res) => {
-  const { userId } = req.params;
-  const { month } = req.query; 
-
-  try {
-    let query = { userId };
-    if (month) {
-      query.months = month; 
-    }
-
-    const bud = await BudgetSchema.find(query);
-    res.json(bud);
-  } catch (error) {
-    console.error('Error fetching budgets:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-app.get('/get-expenses/:userId', async (req, res) => {
+app.get("/get-budgets/:userId", async (req, res) => {
   const { userId } = req.params;
   const { month } = req.query;
 
   try {
     let query = { userId };
     if (month) {
-      query.month = month; 
+      query.months = month;
+    }
+
+    const bud = await BudgetSchema.find(query);
+    res.json(bud);
+  } catch (error) {
+    console.error("Error fetching budgets:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/get-expenses/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const { month } = req.query;
+
+  try {
+    let query = { userId };
+    if (month) {
+      query.month = month;
     }
 
     const exp = await ExpenseSchema.find(query);
     res.json(exp);
   } catch (error) {
-    console.error('Error fetching expenses:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error fetching expenses:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
 const generateToken = (user) => {
-  return jwt.sign(
-    { id: user._id, username: user.username },
-    secretkey,
-    { expiresIn: "1m" }
-  );
+  return jwt.sign({ id: user._id, username: user.username }, secretkey, {
+    expiresIn: "1m",
+  });
 };
 
 app.post("/login", async (req, res) => {
@@ -122,7 +119,7 @@ app.post("/login", async (req, res) => {
 
   try {
     const user = await SignupSchema.findOne({ username });
-   // console.log("HERE GOT RESULTS OF USER", user);
+    // console.log("HERE GOT RESULTS OF USER", user);
     if (!user) {
       return res.status(401).json({ error: "Invalid username or password" });
     }
@@ -130,16 +127,21 @@ app.post("/login", async (req, res) => {
     //   localStorage.setItem('userId', user._id.toString());
     // }
     const passwordMatch = await bcrypt.compare(password, user.Password);
-   // console.log("HERE compared password OF USER", user._id);
+    // console.log("HERE compared password OF USER", user._id);
     if (passwordMatch) {
-     // console.log("HERE sending response", user);
-    //  let token = jwt.sign(
-    //   { id: user._id, username: user.username },
-    //   secretkey,
-    //   { expiresIn: "60s" }
-    // );
-    let token = generateToken(user);
-      return res.json({ success: true, message: "Login successful", user: user ,token:token});
+      // console.log("HERE sending response", user);
+      //  let token = jwt.sign(
+      //   { id: user._id, username: user.username },
+      //   secretkey,
+      //   { expiresIn: "60s" }
+      // );
+      let token = generateToken(user);
+      return res.json({
+        success: true,
+        message: "Login successful",
+        user: user,
+        token: token,
+      });
     } else {
       return res.status(401).json({ error: "Invalid username or password" });
     }
@@ -148,8 +150,6 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
-
 
 app.post("/Signup", async (req, res) => {
   const { username, password } = req.body;
@@ -173,15 +173,19 @@ app.post("/Signup", async (req, res) => {
 
 app.post("/configure-budgets", async (req, res) => {
   const { userId, months, budgetList } = req.body;
- // console.log("======================",months)
+  // console.log("======================",months)
   try {
     if (!budgetList || !Array.isArray(budgetList) || budgetList.length === 0) {
       return res.status(400).json({ error: "Invalid budget list" });
     }
 
-    const budgets = budgetList.map(({ category, budget }) => ({ userId, category, budget ,months}));
+    const budgets = budgetList.map(({ category, budget }) => ({
+      userId,
+      category,
+      budget,
+      months,
+    }));
     await BudgetSchema.insertMany(budgets);
-   
 
     res.json({ success: true, message: "Budgets saved successfully" });
   } catch (error) {
@@ -190,7 +194,7 @@ app.post("/configure-budgets", async (req, res) => {
   }
 });
 app.post("/add-expense", async (req, res) => {
-  const {userId, month, category, expense } = req.body;
+  const { userId, month, category, expense } = req.body;
   // const userId = localStorage.getItem('userId');
   try {
     const newExpense = new ExpenseSchema({ userId, month, category, expense });
@@ -207,7 +211,11 @@ app.get("/check-existing-budget/:userId/:month/:category", async (req, res) => {
   const { userId, month, category } = req.params;
 
   try {
-    const existingBudget = await BudgetSchema.findOne({ userId, months: month, category });
+    const existingBudget = await BudgetSchema.findOne({
+      userId,
+      months: month,
+      category,
+    });
 
     if (existingBudget) {
       res.json({ exists: true });
@@ -220,15 +228,15 @@ app.get("/check-existing-budget/:userId/:month/:category", async (req, res) => {
   }
 });
 
-app.post("/refresh-token/:userId",async(req,res)=>{
-  const {userId}=req.params
-  console.log(userId)
+app.post("/refresh-token/:userId", async (req, res) => {
+  const { userId } = req.params;
+  console.log(userId);
   const user = await SignupSchema.findById(userId);
-  console.log(user)
-      const newtoken=generateToken(user)
-  res.json({token:newtoken})
-})
+  console.log(user);
+  const newtoken = generateToken(user);
+  res.json({ token: newtoken });
+});
 
-app.listen(port, '0.0.0.0', () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`Server is running on port ${PORT}`);
 });
